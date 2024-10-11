@@ -53,27 +53,76 @@ namespace onion.core.src.Handlers
             return modsPaths;
         }
 
-
-        public Dictionary<string, List<Models.Forge.KeyValuePair>> GetModProperties(string modPath) // Forge
+        #region GetModProperties
+        /// <summary>
+        /// Получает параметры модификации
+        /// </summary>
+        /// <param name="modPath">Путь до модификации</param>
+        /// <returns>Возвращает словарь параметров модификации</returns>
+        #endregion
+        public Dictionary<string, List<Models.Forge.KeyValuePair>> GetModProperties(string modPath)
         {
             string content = "";
-            using (var archive = ArchiveFactory.Open(modPath))
+            Dictionary<string, List<Models.Forge.KeyValuePair>> result = new();
+
+            switch (DetermineLoaderType(modPath))
             {
-                var entry = archive.Entries.FirstOrDefault(e => e.Key == @"META-INF/mods.toml");
-                if (entry != null)
-                {
-                    using (var stream = entry.OpenEntryStream())
+                case "forge":
+                    using (var archive = ArchiveFactory.Open(modPath))
                     {
-                        using (var reader = new StreamReader(stream))
+                        var entry = archive.Entries.FirstOrDefault(e => e.Key == @"META-INF/mods.toml");
+                        if (entry != null)
                         {
-                            content = reader.ReadToEnd();
+                            using (var stream = entry.OpenEntryStream())
+                            {
+                                using (var reader = new StreamReader(stream))
+                                {
+                                    content = reader.ReadToEnd();
+                                    TOMLParser parser = new();
+                                    
+                                    // Get result
+
+                                }
+                            }
                         }
                     }
-                }
+                    break;
+                case "fabric":
+
+                    break;
+                default:
+                    break;
             }
 
-            TOMLParser parser = new TOMLParser();
-            return parser.GetTables(content);
+            
+
+            return result;
+            //TOMLParser parser = new TOMLParser();
+            //return parser.GetTables(content);
+        }
+
+        #region
+        /// <summary>
+        /// Определяет загрузичк модификации
+        /// </summary>
+        /// <param name="modPath">Путь до модификации</param>
+        /// <returns>Возвращает название загрузчика</returns>
+        #endregion
+        public string DetermineLoaderType(string modPath)
+        {
+            using (var archive = ArchiveFactory.Open(modPath))
+            {
+                var mod = archive.Entries.FirstOrDefault(e => e.Key == @"META-INF/mods.toml");
+                
+                if (mod != null)
+                    return "forge";
+                
+                mod = archive.Entries.FirstOrDefault(e => e.Key == @"fabric.mod.json");
+
+                if (mod != null)
+                    return "fabric";
+            }
+            return "unknown";
         }
     }
 

@@ -24,16 +24,19 @@ namespace onion.core
 
             List<string> temp = fileManager.SearchFiles(path);
             Console.WriteLine(temp[0]);
-            var result = fileManager.GetModProperties(temp[0]);
+            
+            Console.WriteLine($"{fileManager.DetermineLoaderType(temp[0])}");
 
-            for (int i = 0; i < result.Count; i++)
-            {
-                Console.WriteLine($"{result.ElementAt(i)}");
-                for (int j = 0; j < result.ElementAt(i).Value.Count; j++)
-                {
-                    Console.WriteLine($"{result.ElementAt(i).Value[j].Value}");
-                }
-            }
+            //var result = fileManager.GetModProperties(temp[0]);
+
+            //for (int i = 0; i < result.Count; i++)
+            //{
+            //    Console.WriteLine($"{result.ElementAt(i)}");
+            //    for (int j = 0; j < result.ElementAt(i).Value.Count; j++)
+            //    {
+            //        Console.WriteLine($"{result.ElementAt(i).Value[j].Value}");
+            //    }
+            //}
         }
     }
 }

@@ -28,53 +28,6 @@ namespace onion.core.src.Handlers
             string[] tomlLines = tomlText.Split('\n');
             Dictionary<string, object> tomlResult = new();
 
-            /*
-            
-            
-            someVar = 0;
-
-            foreach (lines)
-            
-            if (someVar == 1)
-                if(!line.Contains("\'\'\'"))
-                    result[key] += line;
-                else
-                {
-                    result[key] += line.Replace("\'\'\'", "");
-                    someVar = 0;
-                }
-            
-            if (startWith ''' or [)
-                
-                processingSect = value.Split(' ');
-                
-                byte = 0;
-                foreach (var pice in processingSect){
-                    if (pice == "\'\'\'")
-                        byte++;
-                }
-                
-                if (byte == 2){
-                    result[key] = value.Replace("\'\'\'", "");
-                }
-                else if (byte < 2){
-                    someVar = 1;
-                } 
-             */
-
-            foreach (string line in tomlLines)
-            {
-                // key = "value"
-                if (line.Contains('='))
-                {
-                    var keyValue = line.Split('=', 2);
-                    string value = keyValue[1];
-                    //value = value.Trim();
-
-
-                }
-            }
-
             return tomlResult;
         }
 
@@ -108,17 +61,17 @@ namespace onion.core.src.Handlers
                         if (lines[i].StartsWith("[["))
                         {
                             currentTableNumber++;
-                            foundedTables.Add(currentTableNumber, new List<int> { i++ }); //[currentTableNumber++].Add(i++);
+                            foundedTables.Add(currentTableNumber, new List<int> { i });
                             continue;
                         }
-                        else if (lines[i].Length <= 2)//(lines[i].StartsWith(" ") || lines[i].StartsWith("\n"))
+                        else if (lines[i].Length <= 2)
                         {
                             tableFound = false;
                             continue;
                         }
 
                         if (!foundedTables.ContainsKey(currentTableNumber))
-                            foundedTables.Add(currentTableNumber, new List<int> { i }); //= new Dictionary<int, List<int>>() //[currentTableNumber].Add(i);
+                            foundedTables.Add(currentTableNumber, new List<int> { i });
                         else
                             foundedTables[currentTableNumber].Add(i);
 
