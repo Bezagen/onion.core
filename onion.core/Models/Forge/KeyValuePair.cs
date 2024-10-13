@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace onion.core.src.Models.Forge
+namespace onion.core.Models.Forge
 {
     public class KeyValuePair
     {
@@ -16,7 +16,6 @@ namespace onion.core.src.Models.Forge
             Value = value;
         }
 
-        public KeyValuePair() { 
-        }
+        public KeyValuePair(){}
     }
 }

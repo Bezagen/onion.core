@@ -5,9 +5,9 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
-using onion.core.src.Models.Forge;
+using onion.core.Models.Forge;
 
-namespace onion.core.src.Handlers
+namespace onion.core.Handlers
 {
     public class TOMLParser
     {
@@ -23,20 +23,25 @@ namespace onion.core.src.Handlers
         // key2 = value
         //
 
-        public Dictionary<string, object> GetValuesFromFile(string tomlText)
+        public List<Models.Forge.KeyValuePair> GetValuesFromFile(string tomlText)
         {
-            string[] tomlLines = tomlText.Split('\n');
-            Dictionary<string, object> tomlResult = new();
+            List<Models.Forge.KeyValuePair> tomlResult = new();
+
+            tomlResult = GetKeyValuePairsBeforeTables(tomlText);
+
+            tomlResult.AddRange(GetTables(tomlText));
 
             return tomlResult;
         }
 
-        public Dictionary<string, List<Models.Forge.KeyValuePair>> GetTables(string fileText)
+        public List<Models.Forge.KeyValuePair> GetTables(string fileText)
         {
             if (fileText.Length <= 2)
                 throw new ArgumentException("Text not found");
-            
-            Dictionary<string, List<Models.Forge.KeyValuePair>> tablesDictionary = new();
+
+            //Dictionary<string, List<Models.Forge.KeyValuePair>> tablesDictionary = new();
+
+            List<Models.Forge.KeyValuePair> tablesPairs = new();
 
             string[] lines = fileText.Split("\n");
 
@@ -47,7 +52,7 @@ namespace onion.core.src.Handlers
             // Search Tables
             bool tableFound = false;
             int currentTableNumber = 1;
-            
+
             for (int i = 0; i < lines.Length; i++)
             {
                 if (lines[i].Contains("[[mods]]"))
@@ -89,54 +94,56 @@ namespace onion.core.src.Handlers
             // GetValues
             for (int i = 0; i < foundedTables.Count; i++)
             {
+                tablesPairs.Add(new Models.Forge.KeyValuePair("TableNum", $"{i}"));
                 Debug.WriteLine(foundedTables.ElementAt(i).Value.Count + " + " + i);
                 for (int j = 0; j < foundedTables.ElementAt(i).Value.Count; j++)
                 {
                     var keyValuePair = GetKeyValuePair(lines[foundedTables.ElementAt(i).Value[j]]);
-                
+
                     if (keyValuePair != null)
                     {
-                        if (!tablesDictionary.ContainsKey("Dependence" + i))
-                            tablesDictionary.Add("Dependence" + i, new List<Models.Forge.KeyValuePair> { keyValuePair });
-                        else
-                            tablesDictionary["Dependence" + i].Add(keyValuePair);
+                        tablesPairs.Add(keyValuePair);
+                        //if (!tablesDictionary.ContainsKey("Dependence" + i))
+                        //    tablesDictionary.Add("Dependence" + i, new List<Models.Forge.KeyValuePair> { keyValuePair });
+                        //else
+                        //    tablesDictionary["Dependence" + i].Add(keyValuePair);
                     }
                 }
             }
 
-            return tablesDictionary;
+            return tablesPairs;//tablesDictionary;
         }
 
-        public List<Models.Forge.KeyValuePair> GetKeyValuePairs(string line)
+        private List<Models.Forge.KeyValuePair> GetKeyValuePairsBeforeTables(string fileText)
         {
             List<Models.Forge.KeyValuePair> keyValuePairs = new();
 
-            if (line.Contains('='))
+            string[] lines = fileText.Split($"\n");
+
+            for (int i = 0; i < lines.Length; i++)
             {
-                var keyValue = line.Split('=', 2);
-                
-                string key = keyValue[0];
-                string value = keyValue[1];
+                if (lines[i].Contains("[[mods]]"))
+                    lines[i] = " ";
 
-                value.Replace('\"', ' ');
+                if (lines[i].StartsWith("["))
+                    return keyValuePairs;
 
-                Models.Forge.KeyValuePair keyValuePair = new(key, value);
-
-                keyValuePairs.Add(keyValuePair);
+                Models.Forge.KeyValuePair? pair = GetKeyValuePair(lines[i]);
+                if (pair != null)
+                    keyValuePairs.Add(pair);
             }
-
             return keyValuePairs;
         }
 
-        public Models.Forge.KeyValuePair? GetKeyValuePair(string line)
+        private Models.Forge.KeyValuePair? GetKeyValuePair(string line)
         {
             Models.Forge.KeyValuePair keyValuePair;
-            
+
             if (line.Contains('='))
             {
                 var keyValue = line.Split('=', 2);
 
-                string key = keyValue[0];
+                string key = keyValue[0].Trim();
                 string value = keyValue[1];
 
                 value.Replace('\"', ' ');

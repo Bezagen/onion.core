@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Text;
-using onion.core.src.Handlers;
-using onion.core.src.Models.Forge;
+using onion.core.Handlers;
+using onion.core.Models.Forge;
 
 namespace onion.core
 {
@@ -25,10 +25,14 @@ namespace onion.core
             List<string> temp = fileManager.SearchFiles(path);
             Console.WriteLine(temp[0]);
             
-            Console.WriteLine($"{fileManager.DetermineLoaderType(temp[0])}");
+            //Console.WriteLine($"{fileManager.DetermineLoaderType(temp[0])}");
 
-            //var result = fileManager.GetModProperties(temp[0]);
+            var result = fileManager.GetModProperties(temp[0]);
 
+            foreach (var property in result)
+            {
+                Console.WriteLine($"{property.Key} = {property.Value}");
+            }
             //for (int i = 0; i < result.Count; i++)
             //{
             //    Console.WriteLine($"{result.ElementAt(i)}");

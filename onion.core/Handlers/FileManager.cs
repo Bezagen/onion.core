@@ -11,7 +11,7 @@ using SharpCompress;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Archives;
 
-namespace onion.core.src.Handlers
+namespace onion.core.Handlers
 {
     //              (c) Alexandr Yaz
     //      Класс логики взаимодействия с файлами
@@ -60,11 +60,12 @@ namespace onion.core.src.Handlers
         /// <param name="modPath">Путь до модификации</param>
         /// <returns>Возвращает словарь параметров модификации</returns>
         #endregion
-        public Dictionary<string, List<Models.Forge.KeyValuePair>> GetModProperties(string modPath)
+        public List<Models.Forge.KeyValuePair> GetModProperties(string modPath)
         {
             string content = "";
-            Dictionary<string, List<Models.Forge.KeyValuePair>> result = new();
-
+            //Dictionary<string, List<Models.Forge.KeyValuePair>> result = new();
+            List<Models.Forge.KeyValuePair> result = new();
+            
             switch (DetermineLoaderType(modPath))
             {
                 case "forge":
@@ -79,9 +80,9 @@ namespace onion.core.src.Handlers
                                 {
                                     content = reader.ReadToEnd();
                                     TOMLParser parser = new();
-                                    
-                                    // Get result
 
+                                    // Get result
+                                    result = parser.GetValuesFromFile(content);
                                 }
                             }
                         }
@@ -94,14 +95,13 @@ namespace onion.core.src.Handlers
                     break;
             }
 
-            
+
 
             return result;
-            //TOMLParser parser = new TOMLParser();
             //return parser.GetTables(content);
         }
 
-        #region
+        #region DetermineLoaderType
         /// <summary>
         /// Определяет загрузичк модификации
         /// </summary>
@@ -113,10 +113,10 @@ namespace onion.core.src.Handlers
             using (var archive = ArchiveFactory.Open(modPath))
             {
                 var mod = archive.Entries.FirstOrDefault(e => e.Key == @"META-INF/mods.toml");
-                
+
                 if (mod != null)
                     return "forge";
-                
+
                 mod = archive.Entries.FirstOrDefault(e => e.Key == @"fabric.mod.json");
 
                 if (mod != null)
